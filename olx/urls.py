@@ -21,7 +21,7 @@ from web import views
 
 urlpatterns = [
     path('',views.index),
-    path('base/',views.base),
+    path('product/',views.search_product ,name="search_product"),
     path('admin/', admin.site.urls),
 ]
 if settings.DEBUG:
