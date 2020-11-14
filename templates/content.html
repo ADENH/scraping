@@ -1,0 +1,49 @@
+{% load static %}
+    <div class="container-fluid tm-container-content tm-mt-60">
+        <div class="row mb-4">
+            <h2 class="col-6 tm-text-primary">
+                Rekomendasi Terbaru
+            </h2>
+            {% comment %} <div class="col-6 d-flex justify-content-end align-items-center">
+                <form action="" class="tm-text-primary">
+                    Page <input type="text" value="1" size="1" class="tm-input-paging tm-text-primary"> of 200
+                </form>
+            </div> {% endcomment %}
+        </div>
+        <div class="row tm-mb-90 tm-gallery">
+            {% for product in Products %}
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-5" >
+                    <figure class="effect-ming tm-video-item">
+                        <img src='{{product.image_url}}' alt="Image" class="img-fluid" style="height: 236px;margin:auto">
+                        <figcaption class="d-flex align-items-center justify-content-center">
+                            <h2>Detail</h2>
+                            <a href="">View more</a>
+                        </figcaption>                    
+                    </figure>
+                    <div class="d-flex justify-content-between tm-text-gray">
+                        <span>{{product.nama_barang}}</span>
+                    </div>
+                    <div class="d-flex justify-content-between tm-text-gray">
+                        <span>{{product.harga_barang}}</span>
+                    </div>
+                    <div class="d-flex justify-content-between tm-text-gray">
+                        <span class="tm-text-gray-light" style="font-size:0.8rem">{{product.tanggal_barang}}</span>
+                        <span style="font-size:0.8rem">{{product.lokasi_barang}}</span>
+                    </div>
+                </div>
+            {% endfor %}        
+        </div> <!-- row -->
+        <div class="row tm-mb-90">
+            <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+                {% comment %} <a href="javascript:void(0);" class="btn btn-primary tm-btn-prev mb-2 disabled">Previous</a> {% endcomment %}
+                <div class="tm-paging d-flex" style="margin:auto">
+                    <a href="javascript:void(0);" class="btn btn-primary tm-btn-prev mb-2 disabled">Muat Lainnya</a>
+                    {% comment %} <a href="javascript:void(0);" class="active tm-paging-link">1</a>
+                    <a href="javascript:void(0);" class="tm-paging-link">2</a>
+                    <a href="javascript:void(0);" class="tm-paging-link">3</a>
+                    <a href="javascript:void(0);" class="tm-paging-link">4</a> {% endcomment %}
+                </div>
+                {% comment %} <a href="javascript:void(0);" class="btn btn-primary tm-btn-next">Next Page</a> {% endcomment %}
+            </div>            
+        </div>
+    </div> <!-- container-fluid, tm-container-content -->
