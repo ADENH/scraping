@@ -10,18 +10,21 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+            {% url 'index' as index %}
+            {% url 'mobil-bekas' as mobil_bekas %}
+            {% url 'motor-bekas' as motor_bekas %}
                 <li class="nav-item">
-                    <a class="nav-link nav-link-1 active" aria-current="page" href="">Product</a>
-                </li>
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link nav-link-2" href="videos.html">Videos</a>
-                </li> {% endcomment %}
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link nav-link-3" href="about.html">About</a>
+                    <a class="nav-link nav-link-1 {% if request.path == index %} active {%endif%}" aria-current="page" href="/">Product</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link nav-link-2 {% if request.path == mobil_bekas %} active {%endif%}" href="/mobil-bekas">Mobil Bekas</a>
+                </li> 
+                 <li class="nav-item">
+                    <a class="nav-link nav-link-3 {% if request.path == motor_bekas %} active {%endif%}" href="/motor-bekas">Motor Bekas</a>
+                </li>
+                {% comment %} <li class="nav-item">
                     <a class="nav-link nav-link-4" href="contact.html">Contact</a>
-                </li> {% endcomment %}
+                </li>  {% endcomment %}
             </ul>
             </div>
         </div>

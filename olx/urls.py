@@ -20,8 +20,11 @@ from django.conf.urls.static import static
 from web import views
 
 urlpatterns = [
-    path('',views.index),
+    path('',views.index,name="index"),
     path('product/',views.search_product ,name="search_product"),
+    path('mobil-bekas/',views.mobil_bekas,name="mobil-bekas" ),
+    path('motor-bekas/',views.motor_bekas,name="motor-bekas" ),
+
     path('admin/', admin.site.urls),
 ]
 if settings.DEBUG:

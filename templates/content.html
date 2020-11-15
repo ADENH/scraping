@@ -2,13 +2,25 @@
     <div class="container-fluid tm-container-content tm-mt-60">
         <div class="row mb-4">
             <h2 class="col-6 tm-text-primary">
-                Rekomendasi Terbaru
+                {{Title}}
             </h2>
-            {% comment %} <div class="col-6 d-flex justify-content-end align-items-center">
+             <div class="col-6 d-flex justify-content-end align-items-center">
+            {% url 'mobil-bekas' as mobil_bekas %}
+            {% url 'motor-bekas' as motor_bekas %}
                 <form action="" class="tm-text-primary">
-                    Page <input type="text" value="1" size="1" class="tm-input-paging tm-text-primary"> of 200
+                {% if request.path == mobil_bekas %}
+                <div class="dropdown">
+                    <button class="dropbtn">Sort By</button>
+                    <div class="dropdown-content">
+                        <a href="">Relevansi</a>
+                        <a href="#">Tanggal Posting</a>
+                        <a href="#">Harga Terendah</a>
+                        <a href="#">Harga Tertinggi</a>
+                    </div>
+                </div>
+                {% endif %}
                 </form>
-            </div> {% endcomment %}
+            </div> 
         </div>
         <div class="row tm-mb-90 tm-gallery">
             {% for product in Products %}
@@ -47,3 +59,9 @@
             </div>            
         </div>
     </div> <!-- container-fluid, tm-container-content -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.dropdown-trigger');
+    var instances = M.Dropdown.init(elems, options);
+  });
+    </script>
