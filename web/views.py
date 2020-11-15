@@ -31,16 +31,22 @@ def search_product(request):
     url = 'https://www.olx.co.id/items/q-' + search_product
     page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.text, 'html.parser')
+
+    data = get_product_by_api(search_product)    
+    
     Products = []
     if page.status_code==200:
         div = soup.findAll("li",{"data-aut-id": "itemBox"})
+        jumlah_iklan = data['metadata']['total_ads']
+        print(jumlah_iklan)
         Products = set_product(div,base_url)
     # for b in Products:
     #     print(b.link_barang)
     title = 'Hasil Pencarian '+search_product
     context={
         'Products' : Products,
-        'Title' : title
+        'Title' : title,
+        'Iklan' : jumlah_iklan
     } 
     return render(request,'index.html',context)
 
@@ -97,3 +103,11 @@ def set_product(div,base_url):
         lokasi = a.find("span",{"data-aut-id": "item-location"})
         Products.append(make_product(namaBarang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text))
     return Products
+
+def get_product_by_api(keyword):
+    # print(keyword)
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
+    url_api ='https://www.olx.co.id/api/relevance/search?facet_limit=100&location=1000001&location_facet_limit=20&page=1&query='+keyword+'&spellcheck=true&user=0'
+    request_api = requests.get(url_api,headers=headers)
+    json_result = request_api.json()
+    return json_result

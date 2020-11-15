@@ -2,7 +2,8 @@
     <div class="container-fluid tm-container-content tm-mt-60">
         <div class="row mb-4">
             <h2 class="col-6 tm-text-primary">
-                {{Title}}
+             {% url 'search_product' as search_product %}
+                {{Title}} {% if request.path == search_product %} - dari {{Iklan}} iklan{% endif %}
             </h2>
              <div class="col-6 d-flex justify-content-end align-items-center">
             {% url 'mobil-bekas' as mobil_bekas %}
