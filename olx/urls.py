@@ -22,6 +22,7 @@ from web import views
 urlpatterns = [
     path('',views.index,name="index"),
     path('product/',views.search_product ,name="search_product"),
+    path('product/<int:page>',views.search_product ,name="search_product"),
     path('mobil-bekas/',views.mobil_bekas,name="mobil-bekas" ),
     path('motor-bekas/',views.motor_bekas,name="motor-bekas" ),
 

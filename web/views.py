@@ -2,6 +2,7 @@ from django.shortcuts import render
 from bs4 import BeautifulSoup
 import requests
 from .models import Product,make_product
+import json
 
 # Create your views here.
 def index(request):
@@ -33,13 +34,12 @@ def search_product(request):
     soup = BeautifulSoup(page.text, 'html.parser')
     print(url)
     data = get_product_by_api(search_product)    
-    
+    jumlah_iklan =''
     Products = []
     if page.status_code==200:
         div = soup.findAll("li",{"data-aut-id": "itemBox"})
         Products = set_product(div,base_url)
         jumlah_iklan = data['metadata']['total_ads']
-        print(jumlah_iklan)
         
     # for b in Products:
     #     print(b.link_barang)
@@ -109,8 +109,38 @@ def set_product(div,base_url):
 
 def get_product_by_api(keyword):
     # print(keyword)
+    base_url = 'https://www.olx.co.id/item/'
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
-    url_api ='https://www.olx.co.id/api/relevance/search?facet_limit=100&location=1000001&location_facet_limit=20&page=1&query='+keyword+'&spellcheck=true&user=0'
+    url_api ='https://www.olx.co.id/api/relevance/search?facet_limit=100&location=1000001&location_facet_limit=20&query='+keyword+'&spellcheck=true&user=0'
+    print(url_api)
     request_api = requests.get(url_api,headers=headers)
     json_result = request_api.json()
+    Data = json_result['data']
+    items = []
+    for a in Data:
+        nama_barang=a['title']
+        harga_barang=a['price']['value']['display']
+        link = base_url+a['title'].replace(" ","-")+'-iid-'+a['id']
+        deskripsi = a['description']
+
+        lokasi = a['location_source']
+        if lokasi != None:
+            try:
+                lokasi = json.loads(lokasi)
+                lokasi = lokasi['name']
+            except :
+                lokasi = ''   
+        
+        images = []
+        for b in a['images']:
+            images.append(b['url'])
+        waktu = ''
+        if a['republish_date'] != None:
+            waktu = a['republish_date']
+        else:
+            waktu = a['created_at']
+        print(waktu)
+              
+       
+        # items.append(make_product(a['title']))
     return json_result
