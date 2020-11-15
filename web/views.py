@@ -31,15 +31,16 @@ def search_product(request):
     url = 'https://www.olx.co.id/items/q-' + search_product
     page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.text, 'html.parser')
-
+    print(url)
     data = get_product_by_api(search_product)    
     
     Products = []
     if page.status_code==200:
         div = soup.findAll("li",{"data-aut-id": "itemBox"})
+        Products = set_product(div,base_url)
         jumlah_iklan = data['metadata']['total_ads']
         print(jumlah_iklan)
-        Products = set_product(div,base_url)
+        
     # for b in Products:
     #     print(b.link_barang)
     title = 'Hasil Pencarian '+search_product
@@ -91,6 +92,8 @@ def set_product(div,base_url):
     Products = []
     for a in div:
         harga = a.find("span",{"data-aut-id": "itemPrice"})
+        if harga == None:
+            harga =  a.find("span",{"data-aut-id": "itemDetails"})
         namaBarang = a.find("span",{"data-aut-id": "itemTitle"})
         lokasi = a.find("span",{"data-aut-id": "item-location"})
         link = a.find("a",href=True)
