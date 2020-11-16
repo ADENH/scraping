@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import requests
 from .models import Product,make_product
 import json
+import datetime
+import dateutil.parser
 
 # Create your views here.
 def index(request):
@@ -30,6 +32,10 @@ def search_product(request):
     print(request.POST.get('next_page'))
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
     base_url = 'https://www.olx.co.id'
+    jumlah_iklan =''
+    next_page_url = ''
+    Products = []
+
     if search_product != None:
         url = 'https://www.olx.co.id/items/q-' + search_product
         data = get_product_by_api(search_product,url,0) 
@@ -43,9 +49,6 @@ def search_product(request):
     soup = BeautifulSoup(page.text, 'html.parser')
     # print(url)
     
-    jumlah_iklan =''
-    next_page_url = ''
-    Products = []
     if page.status_code==200:
         div = soup.findAll("li",{"data-aut-id": "itemBox"})
         Products = set_product(div,base_url)
@@ -160,8 +163,18 @@ def get_product_by_api(keyword,url,code):
                 waktu = a['display_date']
             else:
                 waktu = a['created_at']
+        waktu = datetime.datetime.fromisoformat(waktu)
+        waktu = waktu.strftime('%Y-%m-%d')
+        hari_ini = datetime.date.today()
+        kemaren = hari_ini -datetime.timedelta(days=1)
+        kemaren = kemaren.strftime('%Y-%m-%d')
+        hari_ini = hari_ini.strftime('%Y-%m-%d')
+        if(waktu == hari_ini ):
+            waktu = 'hari ini'
+        elif(waktu == kemaren):
+            waktu = 'kemaren'
         
-        # print(waktu)
+        print(waktu)
               
     next_page_url=json_result['metadata']['next_page_url']   
     # print(next_page_url)
