@@ -149,7 +149,7 @@ def set_product_by_api(data,base_url):
     for a in data:
         nama_barang=a['title']
         harga_barang=a['price']['value']['display']
-        link = base_url+a['title'].replace(" ","-")+'-iid-'+a['id']
+        link = base_url+"/item/"+a['title'].replace(" ","-")+'-iid-'+a['id']
         deskripsi = a['description']
 
         lokasi = a['location_source']
@@ -185,5 +185,5 @@ def set_product_by_api(data,base_url):
         elif(waktu == kemaren):
             waktu = 'kemaren'
         Products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu))
-        print(waktu)
+        # print(waktu)
     return Products
