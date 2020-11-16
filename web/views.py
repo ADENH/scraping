@@ -35,25 +35,28 @@ def search_product(request):
     jumlah_iklan =''
     next_page_url = ''
     Products = []
-
+    
     if search_product != None:
         url = 'https://www.olx.co.id/items/q-' + search_product
         data = get_product_by_api(search_product,url,0) 
         title = 'Hasil Pencarian '+ search_product
+        page = requests.get(url, headers=headers)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        if page.status_code==200:
+            div = soup.findAll("li",{"data-aut-id": "itemBox"})
+            Products = set_product(div,base_url)
     else:
         url = request.POST.get('next_page')
         data = get_product_by_api(search_product,url,1)
-        title = 'Hasil Pencarian '+ data['metadata']['original_term']    
+        title = 'Hasil Pencarian '+ data['metadata']['original_term']
+        Products = set_product_by_api(data['data'],base_url)    
 
     page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.text, 'html.parser')
     # print(url)
     
-    if page.status_code==200:
-        div = soup.findAll("li",{"data-aut-id": "itemBox"})
-        Products = set_product(div,base_url)
-        jumlah_iklan = data['metadata']['total_ads']
-        next_page_url = data['metadata']['next_page_url']
+    jumlah_iklan = data['metadata']['total_ads']
+    next_page_url = data['metadata']['next_page_url']
         
     # for b in Products:
     #     print(b.link_barang)
@@ -134,8 +137,16 @@ def get_product_by_api(keyword,url,code):
     request_api = requests.get(url_api,headers=headers)
     json_result = request_api.json()
     Data = json_result['data']
-    items = []
-    for a in Data:
+    
+              
+    next_page_url=json_result['metadata']['next_page_url']   
+    # print(next_page_url)
+        # items.append(make_product(a['title']))
+    return json_result
+
+def set_product_by_api(data,base_url):
+    Products = []
+    for a in data:
         nama_barang=a['title']
         harga_barang=a['price']['value']['display']
         link = base_url+a['title'].replace(" ","-")+'-iid-'+a['id']
@@ -148,7 +159,7 @@ def get_product_by_api(keyword,url,code):
                 lokasi = lokasi['name']
             except :
                 lokasi = ''   
-        
+        img = a['images'][0]['url']
         images = []
         for b in a['images']:
             images.append(b['url'])
@@ -173,10 +184,6 @@ def get_product_by_api(keyword,url,code):
             waktu = 'hari ini'
         elif(waktu == kemaren):
             waktu = 'kemaren'
-        
+        Products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu))
         print(waktu)
-              
-    next_page_url=json_result['metadata']['next_page_url']   
-    # print(next_page_url)
-        # items.append(make_product(a['title']))
-    return json_result
+    return Products
