@@ -34,6 +34,8 @@ def search_product(request):
     base_url = 'https://www.olx.co.id'
     jumlah_iklan =''
     next_page_url = ''
+    prev_page_url = '#'
+    page = ''
     Products = []
     
     if search_product != None:
@@ -56,7 +58,14 @@ def search_product(request):
     # print(url)
     
     jumlah_iklan = data['metadata']['total_ads']
+    if request.POST.get('next_page') != None:
+        prev_page_url = request.POST.get('next_page')
+    else:
+        prev_page_url = '#'
     next_page_url = data['metadata']['next_page_url']
+    page = next_page_url.find('&clientVersion')
+    print(page-1)
+    print(next_page_url[page-1])
         
     # for b in Products:
     #     print(b.link_barang)
@@ -65,7 +74,8 @@ def search_product(request):
         'Products' : Products,
         'Title' : title,
         'Iklan' : jumlah_iklan,
-        'Next_Page' : next_page_url
+        'Next_Page' : next_page_url,
+        'Previous_Page' : prev_page_url
     } 
     return render(request,'index.html',context)
 
