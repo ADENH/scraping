@@ -37,10 +37,10 @@ def search_product(request):
     prev_page_url = '#'
     page = ''
     Products = []
-    
+    category = 'product'
     if search_product != None:
         url = 'https://www.olx.co.id/items/q-' + search_product
-        data = get_product_by_api(search_product,url,0) 
+        data = get_product_by_api(search_product,url,0,category) 
         title = 'Hasil Pencarian '+ search_product
         page = requests.get(url, headers=headers)
         soup = BeautifulSoup(page.text, 'html.parser')
@@ -49,13 +49,10 @@ def search_product(request):
             Products = set_product(div,base_url)
     else:
         url = request.POST.get('next_page')
-        data = get_product_by_api(search_product,url,1)
+        data = get_product_by_api(search_product,url,1,category)
         title = 'Hasil Pencarian '+ data['metadata']['original_term']
         Products = set_product_by_api(data['data'],base_url)    
 
-    page = requests.get(url, headers=headers)
-    soup = BeautifulSoup(page.text, 'html.parser')
-    # print(url)
     
     jumlah_iklan = data['metadata']['total_ads']
     if request.POST.get('next_page') != None:
@@ -64,8 +61,12 @@ def search_product(request):
         prev_page_url = '#'
     next_page_url = data['metadata']['next_page_url']
     page = next_page_url.find('&clientVersion')
-    print(page-1)
-    print(next_page_url[page-1])
+    hal = next_page_url.find('page=')+5
+    # print(next_page_url.find('page=')+4)
+    # print(next_page_url[(next_page_url.find('page=')+4)])
+    # print(page-1)
+    # print(next_page_url[page-1])
+    print(next_page_url[hal:page])
         
     # for b in Products:
     #     print(b.link_barang)
@@ -83,17 +84,34 @@ def mobil_bekas(request):
     search_product = request.POST.get('product')
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
     base_url = 'https://www.olx.co.id'
-    url = 'https://www.olx.co.id/mobil-bekas_c198'
-    page = requests.get(url, headers=headers)
-    soup = BeautifulSoup(page.text, 'html.parser')
     Products = []
-    if page.status_code==200:
-        div = soup.findAll("li",{"data-aut-id": "itemBox"})
-        Products = set_product(div,base_url)
+    jumlah_iklan =''
+    next_page_url = ''
+    prev_page_url = '#'
+    page = ''
+    category = '198'
+    if search_product == None:
+        url = 'https://www.olx.co.id/mobil-bekas_c198'
+        data = get_product_by_api(category,url,0,category) 
+        page = requests.get(url, headers=headers)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        if page.status_code==200:
+            div = soup.findAll("li",{"data-aut-id": "itemBox"})
+            Products = set_product(div,base_url)
+    else:
+        url = request.POST.get('next_page')
+        data = get_product_by_api(category,url,1,category)
+        title = 'Hasil Pencarian '+ data['metadata']['original_term']
+        Products = set_product_by_api(data['data'],base_url)   
+
     title = 'Mobil Bekas'
+    jumlah_iklan = data['metadata']['total_ads']
     context={
         'Products' : Products,
-        'Title' : title
+        'Title' : title,
+        'Iklan' : jumlah_iklan,
+        'Next_Page' : next_page_url,
+        'Previous_Page' : prev_page_url
     } 
     return render(request,'index.html',context)
 
@@ -135,23 +153,20 @@ def set_product(div,base_url):
         Products.append(make_product(namaBarang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text))
     return Products
 
-def get_product_by_api(keyword,url,code):
-    # print(keyword)
-    base_url = 'https://www.olx.co.id/item/'
+def get_product_by_api(keyword,url,code,search_by):
+    
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
     if code == 1:
         url_api = url
     else:
-        url_api ='https://www.olx.co.id/api/relevance/search?facet_limit=100&location=1000001&location_facet_limit=20&query='+keyword+'&spellcheck=true&user=0'
+        if search_by == 'product':
+            url_api ='https://www.olx.co.id/api/relevance/search?facet_limit=100&location=1000001&location_facet_limit=20&query='+keyword+'&spellcheck=true&user=0'
+        else:
+            url_api = 'https://www.olx.co.id/api/relevance/search?category='+keyword+'&facet_limit=100&location=2000032&location_facet_limit=20&user=175c05da6cex1e480dcd'
+    
     print(url_api)
     request_api = requests.get(url_api,headers=headers)
     json_result = request_api.json()
-    Data = json_result['data']
-    
-              
-    next_page_url=json_result['metadata']['next_page_url']   
-    # print(next_page_url)
-        # items.append(make_product(a['title']))
     return json_result
 
 def set_product_by_api(data,base_url):
