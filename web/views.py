@@ -50,7 +50,11 @@ def search_product(request):
     else:
         url = request.POST.get('next_page')
         data = get_product_by_api(search_product,url,1,category)
-        title = 'Hasil Pencarian '+ data['metadata']['original_term']
+        try:
+            title = 'Hasil Pencarian '+ data['metadata']['original_term']
+        except:
+            title = 'Hasil Pencarian '
+        
         Products = set_product_by_api(data['data'],base_url)    
 
     
@@ -62,24 +66,13 @@ def search_product(request):
     if request.POST.get('next_page') != None:
         next = request.POST.get('next_page')
         prev=int(next_page_url[hal:page])-2
-        
         next = next_page_url[:hal]+str(prev)+next_page_url[hal+1:]
-        print(prev)
-        print(hal)
-        # next = next[:]
-        # next[hal]=prev
         prev_page_url = next
     else:
         prev_page_url = '#'
     
-    # print(next_page_url.find('page=')+4)
-    # print(next_page_url[(next_page_url.find('page=')+4)])
-    # print(page-1)
-    # print(next_page_url[page-1])
     print(prev_page_url)
     page = int(next_page_url[hal:page])    
-    # for b in Products:
-    #     print(b.link_barang)
    
     context={
         'Products' : Products,
@@ -112,17 +105,31 @@ def mobil_bekas(request):
     else:
         url = request.POST.get('next_page')
         data = get_product_by_api(category,url,1,category)
-        title = 'Hasil Pencarian '+ data['metadata']['original_term']
+        title = 'Hasil Pencarian Mobil Bekas'
         Products = set_product_by_api(data['data'],base_url)   
 
     title = 'Mobil Bekas'
     jumlah_iklan = data['metadata']['total_ads']
+    next_page_url = data['metadata']['next_page_url']
+    page = next_page_url.find('&category')
+    hal = next_page_url.find('page=')+5
+
+    if request.POST.get('next_page') != None:
+        next = request.POST.get('next_page')
+        prev=int(next_page_url[hal:page])-2
+        next = next_page_url[:hal]+str(prev)+next_page_url[hal+1:]
+        prev_page_url = next
+    else:
+        prev_page_url = '#'
+
+    page = next_page_url[hal:page]
     context={
         'Products' : Products,
         'Title' : title,
         'Iklan' : jumlah_iklan,
         'Next_Page' : next_page_url,
-        'Previous_Page' : prev_page_url
+        'Previous_Page' : prev_page_url,
+        'Page':page
     } 
     return render(request,'index.html',context)
 
@@ -130,18 +137,48 @@ def motor_bekas(request):
     search_product = request.POST.get('product')
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
     base_url = 'https://www.olx.co.id'
-    url = 'https://www.olx.co.id/motor-bekas_c200'
-    # url_api ='https://www.olx.co.id/api/relevance/search?facet_limit=100&location=1000001&location_facet_limit=20&page=1&query='+search_product+'&spellcheck=true&user=0'
-    page = requests.get(url, headers=headers)
-    soup = BeautifulSoup(page.text, 'html.parser')
     Products = []
-    if page.status_code==200:
-        div = soup.findAll("li",{"data-aut-id": "itemBox"})
-        Products = set_product(div,base_url)
+    jumlah_iklan =''
+    next_page_url = ''
+    prev_page_url = '#'
+    page = ''
+    category = '200'
+    if search_product == None:
+        url = 'https://www.olx.co.id/motor-bekas_c200'
+        data = get_product_by_api(category,url,0,category) 
+        page = requests.get(url, headers=headers)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        if page.status_code==200:
+            div = soup.findAll("li",{"data-aut-id": "itemBox"})
+            Products = set_product(div,base_url)
+    else:
+        url = request.POST.get('next_page')
+        data = get_product_by_api(category,url,1,category)
+        title = 'Hasil Pencarian Motor Bekas'
+        Products = set_product_by_api(data['data'],base_url)   
+
     title = 'Motor Bekas'
+    jumlah_iklan = data['metadata']['total_ads']
+    next_page_url = data['metadata']['next_page_url']
+    page = next_page_url.find('&category')
+    hal = next_page_url.find('page=')+5
+
+    if request.POST.get('next_page') != None:
+        next = request.POST.get('next_page')
+        prev=int(next_page_url[hal:page])-2
+        next = next_page_url[:hal]+str(prev)+next_page_url[hal+1:]
+        prev_page_url = next
+    else:
+        prev_page_url = '#'
+
+    page = next_page_url[hal:page]
     context={
         'Products' : Products,
-        'Title' : title
+        'Title' : title,
+        'Iklan' : jumlah_iklan,
+        'Next_Page' : next_page_url,
+        'Previous_Page' : prev_page_url,
+        'Page':page
     } 
     return render(request,'index.html',context)
 
