@@ -29,7 +29,7 @@ def index(request):
 
 def search_product(request):
     search_product = request.POST.get('product')
-    print(request.POST.get('next_page'))
+    # print(request.POST.get('next_page'))
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
     base_url = 'https://www.olx.co.id'
     jumlah_iklan =''
@@ -55,28 +55,39 @@ def search_product(request):
 
     
     jumlah_iklan = data['metadata']['total_ads']
-    if request.POST.get('next_page') != None:
-        prev_page_url = request.POST.get('next_page')
-    else:
-        prev_page_url = '#'
     next_page_url = data['metadata']['next_page_url']
     page = next_page_url.find('&clientVersion')
     hal = next_page_url.find('page=')+5
+   
+    if request.POST.get('next_page') != None:
+        next = request.POST.get('next_page')
+        prev=int(next_page_url[hal:page])-2
+        
+        next = next_page_url[:hal]+str(prev)+next_page_url[hal+1:]
+        print(prev)
+        print(hal)
+        # next = next[:]
+        # next[hal]=prev
+        prev_page_url = next
+    else:
+        prev_page_url = '#'
+    
     # print(next_page_url.find('page=')+4)
     # print(next_page_url[(next_page_url.find('page=')+4)])
     # print(page-1)
     # print(next_page_url[page-1])
-    print(next_page_url[hal:page])
-        
+    print(prev_page_url)
+    page = int(next_page_url[hal:page])    
     # for b in Products:
     #     print(b.link_barang)
-    
+   
     context={
         'Products' : Products,
         'Title' : title,
         'Iklan' : jumlah_iklan,
         'Next_Page' : next_page_url,
-        'Previous_Page' : prev_page_url
+        'Previous_Page' : prev_page_url,
+        'Page':page
     } 
     return render(request,'index.html',context)
 
