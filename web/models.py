@@ -23,3 +23,17 @@ class Product(object):
 def make_product(nama, harga, link,deskripsi,lokasi,img,tanggal):
     product = Product(nama, harga, link,deskripsi,lokasi,img,tanggal)
     return product
+
+class Category(models.Model):
+    code_category = models.CharField(max_length=250)
+    nama_category = models.CharField(max_length=250)
+    link_category = models.CharField(max_length=250)
+
+    def __init__(self,code,nama,link):
+        self.code_category =code
+        self.nama_category =nama
+        self.link_category = link
+
+def make_category(code,nama,link):
+    category = Category(code,nama,link)
+    return category

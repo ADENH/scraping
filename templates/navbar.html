@@ -16,12 +16,18 @@
                 <li class="nav-item">
                     <a class="nav-link nav-link-1 {% if request.path == index %} active {%endif%}" aria-current="page" href="/">Product</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-link-2 {% if request.path == mobil_bekas %} active {%endif%}" href="/mobil-bekas">Mobil Bekas</a>
+                {% for cat in Category %}
+                {% comment %} {% url 'search_by_category' category_code=cat.code_category %} {% endcomment %}
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-2 {% if request.path == mobil_bekas %} active {%endif%}" href="/product/category/{{cat.code_category}}">{{cat.nama_category}}</a>
+                    </li> 
+                {% endfor %}
+                {% comment %} <li class="nav-item">
+                    <a class="nav-link nav-link-2 {% if request.path == mobil_bekas %} active {%endif%}" href="/product/category/200">Mobil Bekas</a>
                 </li> 
                  <li class="nav-item">
                     <a class="nav-link nav-link-3 {% if request.path == motor_bekas %} active {%endif%}" href="/motor-bekas">Motor Bekas</a>
-                </li>
+                </li> {% endcomment %}
                 {% comment %} <li class="nav-item">
                     <a class="nav-link nav-link-4" href="contact.html">Contact</a>
                 </li>  {% endcomment %}

@@ -27,7 +27,7 @@ SECRET_KEY = 'j&rb1qlg2*9q=abro&$yrh*9=6kxec-#k0=^42&@uwpch9x#*q'
 DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", 
-"localhost","demo-scraping.adenurhidayat.com","www.demo-scraping.adenurhidayat.com"]
+"localhost","demo-scraping.adenurhidayat.com","www.demo-scraping.adenurhidayat.com","www.olx-search.sukadata.com","olx-search.sukadata.com"]
 
 
 # Application definition
