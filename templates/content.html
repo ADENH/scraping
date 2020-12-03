@@ -50,7 +50,7 @@
         </div> <!-- row -->
         <div class="row tm-mb-90">
             <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
-            {% if request.path == mobil_bekas or request.path == motor_bekas or request.path == search_product  %}
+            {% if request.path != index  %}
             <form action="{% url 'search_product' %}", method="POST">
              {% csrf_token %}
                 <input class="form-control" name='next_page' value={{Previous_Page}} id="next_page" hidden>
