@@ -57,7 +57,7 @@ def search_product(request):
     
     jumlah_iklan = data['metadata']['total_ads']
     next_page_url = data['metadata']['next_page_url']
-    page = next_page_url.find('&category')
+    page = next_page_url.find('&clientVersion')
     hal = next_page_url.find(PAGE)+5
    
     if request.POST.get('next_page') != None:
