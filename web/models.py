@@ -3,12 +3,12 @@ from django_resized import ResizedImageField
 
 # Create your models here.
 class Product(object):
-    nama_barang = models.CharField(max_length=250)
-    harga_barang = models.CharField(max_length=250)
-    link_barang = models.CharField(max_length=250)
+    nama_barang = models.CharField(max_length=250,null=True)
+    harga_barang = models.CharField(max_length=250,null=True)
+    link_barang = models.CharField(max_length=250,null=True)
     deskripsi = models.TextField(null=True, blank=True)
-    lokasi_barang = models.CharField(max_length=250)
-    tanggal_barang = models.CharField(max_length=250)
+    lokasi_barang = models.CharField(max_length=250,null=True)
+    tanggal_barang = models.CharField(max_length=250,null=True)
     image_url =ResizedImageField(size=[144, 144], crop=['middle', 'center'], quality=100,null=True, blank=True)
 
     def __init__(self,nama, harga, link,deskripsi,lokasi,img,tanggal):
