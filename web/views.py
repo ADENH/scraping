@@ -120,7 +120,10 @@ def set_product_by_api(data,base_url):
     Products = []
     for a in data:
         nama_barang=a['title']
-        harga_barang=a['price']['value']['display']
+        if a['price'] != None:
+            harga_barang=a['price']['value']['display']
+        else:
+            harga_barang=a['main_info']
         link = base_url+"/item/"+a['title'].replace(" ","-")+'-iid-'+a['id']
         deskripsi = a['description']
 
