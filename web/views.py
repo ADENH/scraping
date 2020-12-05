@@ -20,10 +20,10 @@ PAGE ='page='
 # Create your views here.
 def index(request):
     category = get_category_url()
-    Products = get_home_products()       
+    products = get_home_products()       
     title = 'Rekomendasi Terbaru'
     context={
-        'Products' : Products,
+        'Products' : products,
         'Title' : title,
         'Category' : category
     } 
@@ -37,7 +37,7 @@ def search_product(request):
     next_page_url = ''
     prev_page_url = '#'
     page = ''
-    Products = []
+    products = []
     category = 'product'
     if search_product != None:
         url = 'https://www.olx.co.id/items/q-' + search_product
@@ -47,7 +47,7 @@ def search_product(request):
         soup = BeautifulSoup(page.text, HTML_PARSER)
         if page.status_code==200:
             div = soup.findAll("li",{"data-aut-id": "itemBox"})
-            Products = set_product(div,URL_BASE_OLX)
+            products = set_product(div,URL_BASE_OLX)
     else:
         url = request.POST.get('next_page')
         data = get_product_by_api(search_product,url,1,category)
@@ -56,7 +56,7 @@ def search_product(request):
         except Exception:
             title = 'Hasil Pencarian '
         
-        Products = set_product_by_api(data['data'],URL_BASE_OLX)    
+        products = set_product_by_api(data['data'],URL_BASE_OLX)    
     
     jumlah_iklan = data['metadata']['total_ads']
     next_page_url = data['metadata']['next_page_url']
@@ -75,7 +75,7 @@ def search_product(request):
     page = int(next_page_url[hal:page])    
    
     context={
-        'Products' : Products,
+        'Products' : products,
         'Title' : title,
         'Iklan' : jumlah_iklan,
         'Next_Page' : next_page_url,
@@ -86,12 +86,12 @@ def search_product(request):
     return render(request,INDEX,context)
 
 def set_product(div,base_url):
-    Products = []
+    products = []
     for a in div:
         harga = a.find("span",{"data-aut-id": "itemPrice"})
         if harga == None:
             harga =  a.find("span",{"data-aut-id": "itemDetails"})
-        namaBarang = a.find("span",{"data-aut-id": "itemTitle"})
+        nama_barang = a.find("span",{"data-aut-id": "itemTitle"})
         link = a.find("a",href=True)
         link = base_url+link['href']
         img = a.find("img")
@@ -104,8 +104,8 @@ def set_product(div,base_url):
         else:
             deskripsi=''
         lokasi = a.find("span",{"data-aut-id": "item-location"})
-        Products.append(make_product(namaBarang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text))
-    return Products
+        products.append(make_product(nama_barang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text))
+    return products
 
 def get_product_by_api(keyword,url,code,search_by):
     keyword = str(keyword)
@@ -124,7 +124,7 @@ def get_product_by_api(keyword,url,code,search_by):
     return json_result
 
 def set_product_by_api(data,base_url):
-    Products = []
+    products = []
     for a in data:
         nama_barang=a['title']
         if a['price'] != None:
@@ -148,9 +148,9 @@ def set_product_by_api(data,base_url):
         waktu = ''
         waktu = date(a)
         
-        Products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu))
+        products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu))
         # print(waktu)
-    return Products
+    return products
 
 def date(a):
     try:
@@ -185,7 +185,7 @@ def search_by_category(request,category_code):
             title = cat.nama_category
             break
     search_product = request.POST.get('product')
-    Products = []
+    products = []
     jumlah_iklan =''
     next_page_url = ''
     page = ''
@@ -196,11 +196,11 @@ def search_by_category(request,category_code):
         soup = BeautifulSoup(page.text, HTML_PARSER)
         if page.status_code==200:
             div = soup.findAll("li",{"data-aut-id": "itemBox"})
-            Products = set_product(div,URL_BASE_OLX)
+            products = set_product(div,URL_BASE_OLX)
     else:
         url = request.POST.get('next_page')
         data = get_product_by_api(category_code,url,1,category_code)
-        Products = set_product_by_api(data['data'],URL_BASE_OLX)   
+        products = set_product_by_api(data['data'],URL_BASE_OLX)   
 
     
     jumlah_iklan = data['metadata']['total_ads']
@@ -217,7 +217,7 @@ def search_by_category(request,category_code):
 
     page = next_page_url[hal:page]
     context={
-        'Products' : Products,
+        'Products' : products,
         'Title' : title,
         'Iklan' : jumlah_iklan,
         'Next_Page' : next_page_url,
@@ -229,15 +229,15 @@ def search_by_category(request,category_code):
     return render(request,INDEX,context)
 
 def get_home_products():
-    Products_list =[]
+    products_list =[]
     page = requests.get(URL_BASE_OLX, headers=URL_HEADERS)
 
     soup = BeautifulSoup(page.text, HTML_PARSER)
     
     if page.status_code==200:
         div = soup.findAll("li",{"data-aut-id": "itemBox"})
-        Products_list = set_product(div,URL_BASE_OLX)
-    return Products_list
+        products_list = set_product(div,URL_BASE_OLX)
+    return products_list
 
 def get_category_url():
     category =[]
@@ -262,19 +262,18 @@ def export_data_xls(request):
         if cat.code_category == category_code:
             url = cat.link_category
             break
-    Products = []
+    products = []
     print(url)
     print('MASUK SINI')
     page = requests.get(url, headers=URL_HEADERS)
     soup = BeautifulSoup(page.text, HTML_PARSER)
     if page.status_code==200:
         div = soup.findAll("li",{"data-aut-id": "itemBox"})
-        Products = set_product(div,URL_BASE_OLX)
+        products = set_product(div,URL_BASE_OLX)
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="data.xls"'
 
     
-    print(Products[0])
     print("check di atas")
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Users Data') # this will make a sheet named Users Data
@@ -285,17 +284,15 @@ def export_data_xls(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['nama', 'harga', 'link', 'deskripsi','lokasi', 'tanggal', 'image']
+    columns = ['nama barang', 'harga barang', 'link olx', 'deskripsi','lokasi', 'tanggal', 'image']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style) # at 0 row 0 column 
 
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
-
-    
   
-    for product in Products:
+    for product in products:
         row_num += 1
         for col_num in range(len(columns)):
             data = check_data_export(col_num,product)
