@@ -23,6 +23,7 @@ urlpatterns = [
     path('',views.index,name="index"),
     path('product/',views.search_product ,name="search_product"),
     path('product/category/<int:category_code>',views.search_by_category ,name="search_by_category"),
+    path('export_xls',views.export_data_xls,name='export_xls'),
 
     path('admin/', admin.site.urls),
 ]

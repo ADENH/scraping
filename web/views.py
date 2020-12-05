@@ -1,10 +1,13 @@
 from logging import exception
 from django.shortcuts import render
+from django.http import HttpResponse
 from bs4 import BeautifulSoup
 import requests
-from .models import Category, make_category, make_product
+from .models import Category, Product, make_category, make_product
 import json
 import datetime
+import xlwt
+import pandas as pd
 
 URL_BASE_OLX = 'https://www.olx.co.id'
 URL_HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
@@ -96,12 +99,16 @@ def set_product(div,base_url):
         waktu = a.find("span",{"class": "zLvFQ"})
         waktu = waktu.find('span')
         deskripsi = a.find("span",{"data-aut-id": "itemDetails"})
+        if deskripsi != None:
+            deskripsi = deskripsi.text
+        else:
+            deskripsi=''
         lokasi = a.find("span",{"data-aut-id": "item-location"})
         Products.append(make_product(namaBarang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text))
     return Products
 
 def get_product_by_api(keyword,url,code,search_by):
-    
+    keyword = str(keyword)
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
     if code == 1:
         url_api = url
@@ -183,7 +190,6 @@ def search_by_category(request,category_code):
     next_page_url = ''
     page = ''
     print(url)
-    category_code = str(category_code)
     if search_product == None:
         data = get_product_by_api(category_code,url,0,category_code) 
         page = requests.get(url, headers=URL_HEADERS)
@@ -248,3 +254,71 @@ def get_category_url():
             category.append(make_category(code,nama,link))
     return category
 
+def export_data_xls(request):
+    category_code = 198
+    category = get_category_url()
+    url=''
+    for cat in category:
+        if cat.code_category == category_code:
+            url = cat.link_category
+            break
+    Products = []
+    print(url)
+    print('MASUK SINI')
+    page = requests.get(url, headers=URL_HEADERS)
+    soup = BeautifulSoup(page.text, HTML_PARSER)
+    if page.status_code==200:
+        div = soup.findAll("li",{"data-aut-id": "itemBox"})
+        Products = set_product(div,URL_BASE_OLX)
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="data.xls"'
+
+    
+    print(Products[0])
+    print("check di atas")
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Users Data') # this will make a sheet named Users Data
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['nama', 'harga', 'link', 'deskripsi','lokasi', 'tanggal', 'image']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style) # at 0 row 0 column 
+
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    
+  
+    for product in Products:
+        row_num += 1
+        for col_num in range(len(columns)):
+            data = check_data_export(col_num,product)
+            ws.write(row_num, col_num, data, font_style)
+
+    wb.save(response)
+
+    return response
+
+def check_data_export(col_num,product):
+    data =''
+    if col_num == 0:
+        data = product.nama_barang
+    elif col_num ==1:
+        data = product.harga_barang
+    elif col_num ==2:
+        data = product.link_barang
+    elif col_num ==3:
+        data = product.deskripsi
+    elif col_num ==4:
+        data = product.lokasi_barang
+    elif col_num ==5:
+        data = product.tanggal_barang
+    elif col_num ==6:
+        data = product.image_url
+    return data   

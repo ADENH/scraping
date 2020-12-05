@@ -11,7 +11,10 @@
              <div class="col-6 d-flex justify-content-end align-items-center">
             
                 <form action="" class="tm-text-primary">
+               
                 {% if request.path != index %}
+                <a href="{% url 'export_xls' %}" class='dropbtn'>Export Data</a>
+                
                 <div class="dropdown">
                     <button class="dropbtn">Sort By</button>
                     <div class="dropdown-content">
