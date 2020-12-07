@@ -104,7 +104,8 @@ def set_product(div,base_url):
         else:
             deskripsi=''
         lokasi = a.find("span",{"data-aut-id": "item-location"})
-        products.append(make_product(nama_barang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text))
+        like = ''
+        products.append(make_product(nama_barang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text,like))
     return products
 
 def get_product_by_api(keyword,url,code,search_by):
@@ -147,8 +148,10 @@ def set_product_by_api(data,base_url):
             images.append(b['url'])
         waktu = ''
         waktu = date(a)
-        
-        products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu))
+        like = a['favorites']
+        if like != None:
+            like = a['favorites']['count']
+        products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu,like))
         # print(waktu)
     return products
 
@@ -284,7 +287,7 @@ def export_data_xls(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['nama barang', 'harga barang', 'link olx', 'deskripsi','lokasi', 'tanggal', 'image']
+    columns = ['nama barang', 'harga barang', 'link olx', 'deskripsi','lokasi', 'tanggal','jumlah like']
 
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style) # at 0 row 0 column 
@@ -317,5 +320,5 @@ def check_data_export(col_num,product):
     elif col_num ==5:
         data = product.tanggal_barang
     elif col_num ==6:
-        data = product.image_url
+        data = product.like
     return data   

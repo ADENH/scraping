@@ -10,8 +10,9 @@ class Product(object):
     lokasi_barang = models.CharField(max_length=250,null=True)
     tanggal_barang = models.CharField(max_length=250,null=True)
     image_url =ResizedImageField(size=[144, 144], crop=['middle', 'center'], quality=100,null=True, blank=True)
+    like = models.CharField(max_length=250,null=True)
 
-    def __init__(self,nama, harga, link,deskripsi,lokasi,img,tanggal):
+    def __init__(self,nama, harga, link,deskripsi,lokasi,img,tanggal,like):
         self.nama_barang = nama
         self.harga_barang = harga
         self.link_barang = link
@@ -19,9 +20,10 @@ class Product(object):
         self.deskripsi =deskripsi
         self.image_url = img
         self.tanggal_barang = tanggal
+        self.like = like
 
-def make_product(nama, harga, link,deskripsi,lokasi,img,tanggal):
-    product = Product(nama, harga, link,deskripsi,lokasi,img,tanggal)
+def make_product(nama, harga, link,deskripsi,lokasi,img,tanggal,like):
+    product = Product(nama, harga, link,deskripsi,lokasi,img,tanggal,like)
     return product
 
 class Category(models.Model):

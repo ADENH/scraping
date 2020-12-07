@@ -13,9 +13,16 @@
                 <form action="" class="tm-text-primary">
                
                 {% if request.path != index %}
+                <select name="" id="">
+                    <option disabled='true' selected>Pilih jumlah data yang akan di export</option>
+                    <option value="">20</option>
+                    <option value="">100</option>
+                    <option value="">semua</option>
+                </select>
+                
                 <a href="{% url 'export_xls' %}" class='dropbtn'>Export Data</a>
                 
-                <div class="dropdown">
+                {% comment %} <div class="dropdown">
                     <button class="dropbtn">Sort By</button>
                     <div class="dropdown-content">
                         <a href="">Relevansi</a>
@@ -23,7 +30,7 @@
                         <a href="#">Harga Terendah</a>
                         <a href="#">Harga Tertinggi</a>
                     </div>
-                </div>
+                </div> {% endcomment %}
                 {% endif %}
                 </form>
             </div> 
