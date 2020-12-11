@@ -324,17 +324,17 @@ def export_data_xls(request):
 def check_data_export(col_num,product):
     data =''
     if col_num == 0:
-        data = product.nama_barang
+        data = product.get('nama_barang')
     elif col_num ==1:
-        data = product.harga_barang
+        data = product.get('harga_barang')
     elif col_num ==2:
-        data = product.link_barang
+        data = product.get('link_barang')
     elif col_num ==3:
-        data = product.deskripsi
+        data = product.get('deskripsi')
     elif col_num ==4:
-        data = product.lokasi_barang
+        data = product.get('lokasi_barang')
     elif col_num ==5:
-        data = product.tanggal_barang
+        data = product.get('tanggal_barang')
     elif col_num ==6:
-        data = product.like
+        data = product.get('like')
     return data   
