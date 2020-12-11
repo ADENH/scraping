@@ -112,7 +112,7 @@ def set_product(div,base_url):
 def set_product_from_session(data):
     products =[]
     for a in data:
-        products.append(make_product(a.get('nama_barang'),a.get('harga_barang'),a.get('link_barang'),a.get('deskripsi'),a.get('lokasi_barang'),a.get('tanggal_barang'),a.get('image_url'),a.get('like')))
+        products.append(make_product(a.get('nama_barang'),a.get('harga_barang'),a.get('link_barang'),a.get('deskripsi'),a.get('lokasi_barang'),a.get('tanggal_barang'),a.get('image_url'),a.get('like')).serialize())
     return products
 
 def get_product_by_api(keyword,url,code,search_by):
@@ -158,7 +158,7 @@ def set_product_by_api(data,base_url):
         like = a['favorites']
         if like != None:
             like = a['favorites']['count']
-        products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu,like))
+        products.append(make_product(nama_barang,harga_barang,link,deskripsi,lokasi,img,waktu,like).serialize())
         # print(waktu)
     return products
 
