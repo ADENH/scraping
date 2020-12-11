@@ -31,9 +31,6 @@ def index(request):
     return render(request,INDEX,context)
 
 def search_product(request):
-    if 'products' in request.session:
-        print("ADA session nih")
-        idempresa = request.session['products']
     categoy_list = get_category_url()
     search_product = request.POST.get('product')
     # print(request.POST.get('next_page'))
@@ -229,6 +226,7 @@ def search_by_category(request,category_code):
         prev_page_url = '#'
 
     page = next_page_url[hal:page]
+    request.session['products'] = products
     context={
         'Products' : products,
         'Title' : title,
