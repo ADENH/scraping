@@ -13,12 +13,12 @@
                 <form action="" class="tm-text-primary">
                
                 {% if request.path != index %}
-                <select name="" id="">
+                {% comment %} <select name="" id="">
                     <option disabled='true' selected>Pilih jumlah data yang akan di export</option>
                     <option value="">20</option>
                     <option value="">100</option>
                     <option value="">semua</option>
-                </select>
+                </select> {% endcomment %}
                 
                 <a href="{% url 'export_xls' %}" class='dropbtn'>Export Data</a>
                 

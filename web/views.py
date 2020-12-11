@@ -22,6 +22,7 @@ def index(request):
     category = get_category_url()
     products = get_home_products()       
     title = 'Rekomendasi Terbaru'
+    request.session['products'] = products
     context={
         'Products' : products,
         'Title' : title,
@@ -30,6 +31,9 @@ def index(request):
     return render(request,INDEX,context)
 
 def search_product(request):
+    if 'products' in request.session:
+        print("ADA session nih")
+        idempresa = request.session['products']
     categoy_list = get_category_url()
     search_product = request.POST.get('product')
     # print(request.POST.get('next_page'))
@@ -73,7 +77,7 @@ def search_product(request):
     
     print(prev_page_url)
     page = int(next_page_url[hal:page])    
-   
+    request.session['products'] = products
     context={
         'Products' : products,
         'Title' : title,
@@ -105,7 +109,13 @@ def set_product(div,base_url):
             deskripsi=''
         lokasi = a.find("span",{"data-aut-id": "item-location"})
         like = ''
-        products.append(make_product(nama_barang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text,like))
+        products.append(make_product(nama_barang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text,like).serialize())
+    return products
+
+def set_product_from_session(data):
+    products =[]
+    for a in data:
+        products.append(make_product(a.get('nama_barang'),a.get('harga_barang'),a.get('link_barang'),a.get('deskripsi'),a.get('lokasi_barang'),a.get('tanggal_barang'),a.get('image_url'),a.get('like')))
     return products
 
 def get_product_by_api(keyword,url,code,search_by):
@@ -267,7 +277,6 @@ def export_data_xls(request):
             break
     products = []
     print(url)
-    print('MASUK SINI')
     page = requests.get(url, headers=URL_HEADERS)
     soup = BeautifulSoup(page.text, HTML_PARSER)
     if page.status_code==200:
@@ -276,7 +285,16 @@ def export_data_xls(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="data.xls"'
 
-    
+    if 'products' in request.session:
+       print("ADA session nih")
+       data_session = request.session['products']
+       products = set_product_from_session(data_session)
+    else:
+        page = requests.get(url, headers=URL_HEADERS)
+        soup = BeautifulSoup(page.text, HTML_PARSER)
+        if page.status_code==200:
+            div = soup.findAll("li",{"data-aut-id": "itemBox"})
+            products = set_product(div,URL_BASE_OLX)
     print("check di atas")
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Users Data') # this will make a sheet named Users Data

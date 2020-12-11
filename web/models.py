@@ -21,12 +21,15 @@ class Product(object):
         self.image_url = img
         self.tanggal_barang = tanggal
         self.like = like
+    
+    def serialize(self):
+        return self.__dict__
 
 def make_product(nama, harga, link,deskripsi,lokasi,img,tanggal,like):
     product = Product(nama, harga, link,deskripsi,lokasi,img,tanggal,like)
     return product
 
-class Category(models.Model):
+class Category(object):
     code_category = models.CharField(max_length=250)
     nama_category = models.CharField(max_length=250)
     link_category = models.CharField(max_length=250)
