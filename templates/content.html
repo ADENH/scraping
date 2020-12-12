@@ -19,8 +19,8 @@
                     <option value="">100</option>
                     <option value="">semua</option>
                 </select> {% endcomment %}
-                
-                <a href="{% url 'export_xls' %}" target="_blank" class='dropbtn'>Export Data</a>
+                <a href="export_xls/{{Category_Code}}/0" target="_blank" class='dropbtn'>Export All Data</a>
+                <a href="export_xls/{{Category_Code}}/20" target="_blank" class='dropbtn'>Export Data</a>
                 
                 {% comment %} <div class="dropdown">
                     <button class="dropbtn">Sort By</button>

@@ -89,9 +89,16 @@ def search_product(request):
 def set_product(div,base_url):
     products = []
     for a in div:
-        harga = a.find("span",{"data-aut-id": "itemPrice"})
-        if harga == None:
-            harga =  a.find("span",{"data-aut-id": "itemDetails"})
+        harga =''
+        harga_price = a.find("span",{"data-aut-id": "itemPrice"})
+        harga_details =  a.find("span",{"data-aut-id": "itemDetails"})
+        if harga_details == None and harga_price == None:
+            harga=''
+        elif harga_price != None:
+            harga = harga_price.text
+        elif harga_details != None:
+            harga = harga_details.text
+
         nama_barang = a.find("span",{"data-aut-id": "itemTitle"})
         link = a.find("a",href=True)
         link = base_url+link['href']
@@ -99,20 +106,32 @@ def set_product(div,base_url):
         img = img['src']
         waktu = a.find("span",{"class": "zLvFQ"})
         waktu = waktu.find('span')
+        if waktu != None:
+            waktu = waktu.text
+        else:
+            waktu = None
         deskripsi = a.find("span",{"data-aut-id": "itemDetails"})
         if deskripsi != None:
             deskripsi = deskripsi.text
         else:
             deskripsi=''
         lokasi = a.find("span",{"data-aut-id": "item-location"})
-        like = ''
-        products.append(make_product(nama_barang.text,harga.text,link,deskripsi,lokasi.text,img,waktu.text,like).serialize())
+        if lokasi == None:
+            lokasi =''
+        else:
+            lokasi = lokasi.text
+        like = 0
+        products.append(make_product(nama_barang.text,harga,link,deskripsi,lokasi,img,waktu,like).serialize())
     return products
 
 def set_product_from_session(data):
     products =[]
     for a in data:
-        products.append(make_product(a.get('nama_barang'),a.get('harga_barang'),a.get('link_barang'),a.get('deskripsi'),a.get('lokasi_barang'),a.get('tanggal_barang'),a.get('image_url'),a.get('like')).serialize())
+        waktu = a.get('tanggal_barang')
+        if waktu == 'Hari ini':
+            waktu = datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
+            print(waktu)
+        products.append(make_product(a.get('nama_barang'),a.get('harga_barang'),a.get('link_barang'),a.get('deskripsi'),a.get('lokasi_barang'),a.get('image_url'),waktu,a.get('like')).serialize())
     return products
 
 def get_product_by_api(keyword,url,code,search_by):
@@ -154,7 +173,7 @@ def set_product_by_api(data,base_url):
         for b in a['images']:
             images.append(b['url'])
         waktu = ''
-        waktu = date(a)
+        waktu = tanggal_barang(a)
         like = a['favorites']
         if like != None:
             like = a['favorites']['count']
@@ -162,7 +181,7 @@ def set_product_by_api(data,base_url):
         # print(waktu)
     return products
 
-def date(a):
+def tanggal_barang(a):
     try:
         if a['republish_date'] != None:
             waktu = a['republish_date']
@@ -173,16 +192,6 @@ def date(a):
             waktu = a['display_date']
         else:
             waktu = a['created_at']
-    waktu = datetime.datetime.fromisoformat(waktu)
-    waktu = waktu.strftime(DATE_FORMAT)
-    hari_ini = datetime.date.today()
-    kemaren = hari_ini -datetime.timedelta(days=1)
-    kemaren = kemaren.strftime(DATE_FORMAT)
-    hari_ini = hari_ini.strftime(DATE_FORMAT)
-    if(waktu == hari_ini ):
-        waktu = 'hari ini'
-    elif(waktu == kemaren):
-        waktu = 'kemaren'
     return waktu
 
 def search_by_category(request,category_code):
@@ -212,12 +221,11 @@ def search_by_category(request,category_code):
         data = get_product_by_api(category_code,url,1,category_code)
         products = set_product_by_api(data['data'],URL_BASE_OLX)   
 
-    
+
     jumlah_iklan = data['metadata']['total_ads']
     next_page_url = data['metadata']['next_page_url']
     page = next_page_url.find('&category')
     hal = next_page_url.find(PAGE)+5
-    print()
     if request.POST.get('next_page') != None:
         prev=int(next_page_url[hal:page])-2
         next_url = next_page_url[:hal]+str(prev)+next_page_url[hal+1:]
@@ -227,6 +235,7 @@ def search_by_category(request,category_code):
 
     page = next_page_url[hal:page]
     request.session['products'] = products
+    request.session['next_page_url'] = next_page_url
     context={
         'Products' : products,
         'Title' : title,
@@ -234,7 +243,8 @@ def search_by_category(request,category_code):
         'Next_Page' : next_page_url,
         'Previous_Page' : prev_page_url,
         'Page':page,
-        'Category' : category
+        'Category' : category,
+        'Category_Code' : category_code
     }
     print(category_code)
     return render(request,INDEX,context)
@@ -265,8 +275,7 @@ def get_category_url():
             category.append(make_category(code,nama,link))
     return category
 
-def export_data_xls(request):
-    category_code = 198
+def export_data_xls(request,category_code,data):
     category = get_category_url()
     url=''
     for cat in category:
@@ -275,25 +284,25 @@ def export_data_xls(request):
             break
     products = []
     print(url)
-    page = requests.get(url, headers=URL_HEADERS)
-    soup = BeautifulSoup(page.text, HTML_PARSER)
-    if page.status_code==200:
-        div = soup.findAll("li",{"data-aut-id": "itemBox"})
-        products = set_product(div,URL_BASE_OLX)
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="data.xls"'
 
-    if 'products' in request.session:
-       print("ADA session nih")
-       data_session = request.session['products']
-       products = set_product_from_session(data_session)
-    else:
-        page = requests.get(url, headers=URL_HEADERS)
-        soup = BeautifulSoup(page.text, HTML_PARSER)
-        if page.status_code==200:
-            div = soup.findAll("li",{"data-aut-id": "itemBox"})
-            products = set_product(div,URL_BASE_OLX)
-    print("check di atas")
+    data_session = request.session['products']
+    next_page_url = request.session['next_page_url']
+    
+    if 'products' in request.session and data == 20:
+        products = set_product_from_session(data_session)
+    elif data == 0:
+        products = set_product_from_session(data_session)
+        while next_page_url != None:
+            list_product = get_product_by_api(category_code,next_page_url,1,category_code)
+            products_by_api = set_product_by_api(list_product['data'],URL_BASE_OLX)
+            products = products + products_by_api
+            try:
+                next_page_url = list_product['metadata']['next_page_url']
+            except Exception:
+                break
+
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Users Data') # this will make a sheet named Users Data
 
@@ -310,7 +319,6 @@ def export_data_xls(request):
 
     # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
-  
     for product in products:
         row_num += 1
         for col_num in range(len(columns)):
