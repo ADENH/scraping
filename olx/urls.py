@@ -18,9 +18,11 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from web import views
+from accounts import views as views_accounts
 
 urlpatterns = [
     path('',views.index,name="index"),
+    path('accounts/login/',views_accounts.login_view ,name="login"),
     path('product/',views.search_product ,name="search_product"),
     path('product/category/<int:category_code>',views.search_by_category ,name="search_by_category"),
     path('product/category/export_xls/<int:category_code>/<int:data>',views.export_data_xls,name='export_xls'),

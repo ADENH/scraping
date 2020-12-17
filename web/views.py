@@ -7,7 +7,7 @@ from .models import Category, Product, make_category, make_product
 import json
 import datetime
 import xlwt
-import pandas as pd
+from django.contrib.auth.decorators import login_required
 
 URL_BASE_OLX = 'https://www.olx.co.id'
 URL_HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:79.0) Gecko/20100101 Firefox/79.0'}
@@ -161,7 +161,12 @@ def set_product_by_api(data,base_url):
         link = base_url+"/item/"+a['title'].replace(" ","-")+'-iid-'+a['id']
         deskripsi = a['description']
 
-        lokasi = a['location_source']
+        lokasi =''
+        try:
+            lokasi = a['location_source']
+        except Exception:
+            lokasi = a['locations_resolved']['ADMIN_LEVEL_1_name'] 
+        
         if lokasi != None:
             try:
                 lokasi = json.loads(lokasi)
@@ -275,6 +280,7 @@ def get_category_url():
             category.append(make_category(code,nama,link))
     return category
 
+@login_required
 def export_data_xls(request,category_code,data):
     category = get_category_url()
     url=''
@@ -328,6 +334,7 @@ def export_data_xls(request,category_code,data):
     wb.save(response)
 
     return response
+
 
 def check_data_export(col_num,product):
     data =''
