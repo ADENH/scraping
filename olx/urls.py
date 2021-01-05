@@ -26,6 +26,7 @@ urlpatterns = [
     path('product/',views.search_product ,name="search_product"),
     path('product/category/<int:category_code>',views.search_by_category ,name="search_by_category"),
     path('product/category/export_xls/<int:category_code>/<int:data>',views.export_data_xls,name='export_xls'),
+    path('product/export_xls/<int:category_code>/<int:data>',views.export_data_xls,name='export_xls'),
 
     path('admin/', admin.site.urls),
 ]

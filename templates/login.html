@@ -20,7 +20,7 @@
 			</div> {% endcomment %}
 			<span>or use your email for registration</span>
 			<input type="email" placeholder="Email" />
-            <input type="tel" placeholder="Phone Number" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"/>
+            <input type="tel" placeholder="Phone Number" id="phone" name="phone" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}"/>
 			<input type="username" placeholder="Username" />
 			<input type="password" placeholder="Password" />
 			<input type="password_validation" placeholder="Confirm Password" />
@@ -29,6 +29,7 @@
 	</div>
 	<div class="form-container sign-in-container">
 		<form action="{% url 'login' %}" method="POST">
+		{% csrf_token %}
 			<h1>Sign in</h1>
 			{% comment %} <div class="social-container">
 				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
@@ -36,7 +37,7 @@
 				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
 			</div> {% endcomment %}
 			<span>or use your account</span>
-			{% csrf_token %}
+			
 			<input type="username" id="username" name ="username" placeholder="Username" />
 			<input type="password" id="password" name ="password" placeholder="Password" />
 			<a href="#">Forgot your password?</a>
@@ -59,14 +60,15 @@
 	</div>
 </div>
 
-{% comment %} <footer>
+<footer>
 	<p>
-		Created with <i class="fa fa-heart"></i> by
+	Belum bisa register hubungi <a target="_blank" href="http://adenurhidayat.com">Admin</a> jika ingin terdaftar
+		{% comment %} Created with <i class="fa fa-heart"></i> by
 		<a target="_blank" href="https://florin-pop.com">Florin Pop</a>
 		- Read how I created this and how you can join the challenge
-		<a target="_blank" href="https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/">here</a>.
+		<a target="_blank" href="https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/">here</a>. {% endcomment %}
 	</p>
-</footer> {% endcomment %}
+</footer>
 <script src="{% static 'js/login.js' %}"></script>
 </body>
 </html>

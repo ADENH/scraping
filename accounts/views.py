@@ -23,7 +23,7 @@ def register_view(request):
             # attempts = request.session.get('attempts') or 0
             # request.session['attempts'] = attempts + 1
             request.session['registration_error'] = 1
-            return render(request,'login.html',{"form":form})
+            return render(request,'index',{"form":form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -35,7 +35,6 @@ def login_view(request):
             print('User : '+user.username)
             # request.user == user
             login(request,user)
-            request.session['user'] = user.username
             return redirect('index')
         else:
             return render(request,'login.html')

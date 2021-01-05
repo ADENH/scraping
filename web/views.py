@@ -82,7 +82,8 @@ def search_product(request):
         'Next_Page' : next_page_url,
         'Previous_Page' : prev_page_url,
         'Page':page,
-        'Category': categoy_list
+        'Category': categoy_list,
+        'Category_Code' : '0'
     } 
     return render(request,INDEX,context)
 
@@ -293,6 +294,7 @@ def export_data_xls(request,category_code,data):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="data.xls"'
 
+    search_product = request.POST.get('product')
     data_session = request.session['products']
     next_page_url = request.session['next_page_url']
     
@@ -300,8 +302,13 @@ def export_data_xls(request,category_code,data):
         products = set_product_from_session(data_session)
     elif data == 0:
         products = set_product_from_session(data_session)
-        while next_page_url != None:
+        if search_product != None:
+            url = 'https://www.olx.co.id/items/q-' + search_product
+            list_product = get_product_by_api(search_product,url,0,category)
+        else:
             list_product = get_product_by_api(category_code,next_page_url,1,category_code)
+        
+        while next_page_url != None:
             products_by_api = set_product_by_api(list_product['data'],URL_BASE_OLX)
             products = products + products_by_api
             try:
